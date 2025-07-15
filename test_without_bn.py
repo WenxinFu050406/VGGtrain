@@ -11,7 +11,7 @@ NUM_CLASSES = 10
 CLASS_NAMES = ['airplane', 'automobile', 'bird', 'cat', 'deer',
                'dog', 'frog', 'horse', 'ship', 'truck']
 VAL_RATIO = 0.2  # 20%训练集作为验证集
-FREEZE_LAYERS = 13  # 冻结前10层卷积层
+FREEZE_LAYERS = 10  # 冻结前10层卷积层
 INIT_LR = 1e-4
 MIN_LR = 1e-6
 
@@ -102,7 +102,8 @@ def evaluate(model, data_loader, criterion, device):
 # -------------------- 测试函数 --------------------
 def test_model(model_path, test_loader, device, model_name="模型", model_type='vgg19'):
     model = OptimizedVGGWithoutBN(model_type).to(device)
-    model.load_state_dict(torch.load(model_path))
+    state_dict = torch.load(model_path)
+    model.load_state_dict(state_dict)
 
     test_loss, test_acc = evaluate(model, test_loader, nn.CrossEntropyLoss(), device)
     print(f"\n🔍 {model_name} behaves:")
@@ -112,7 +113,7 @@ def test_model(model_path, test_loader, device, model_name="模型", model_type=
 
 # -------------------- 主函数 --------------------
 def main():
-    model_type = 'vgg11'
+    model_type = 'vgg16'
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"\n🖥️ device: {device}")
 
@@ -121,7 +122,7 @@ def main():
         print("✅ 已启用cuDNN自动优化")
 
     print("\n🧪 begin testing...")
-    final_acc = test_model("./vgg11_best_model_without_bn.pth", test_loader, device, "VGG11_without_bn", model_type)
+    final_acc = test_model("./vgg16_merged_bn_model.pth", test_loader, device, "VGG16_without_bn", model_type)
     print(f"Model accuracy: {final_acc:.2f}%")
 
     print("\n🎉 Finished!")
